@@ -3,8 +3,9 @@ import os
 import math
 from random import randint, shuffle, random
 from ast import literal_eval
+import datetime
 
-os.chdir("/Users/mathishard/Desktop/Riddles/1/Crib")
+#os.chdir("/Users/mathishard/Desktop/Riddles/1/Crib")
 
 def makeHandLookup():
     f = open('crib.txt')
@@ -79,10 +80,13 @@ def printScore(scores,n):
 
 # choose dealer
 def chooseDealer(deck):
+    pcut = [[0,0,0]]
+    ocut = [[0,0,0]]
     raw_input("\nCut the deck to determine dealer. Press enter to continue.")
-    shuffle(deck)
-    pcut = [deck[0]]
-    ocut = [deck[1]]
+    while pcut[0][2] == ocut[0][2]:
+        shuffle(deck)
+        pcut = [deck[0]]
+        ocut = [deck[1]]
     print "\nYour cut: "+ printHand(pcut,False)
     print "Computer's cut: "+ printHand(ocut,False)
     if pcut[0][2] < ocut[0][2]:
@@ -153,17 +157,21 @@ def discard(hands,dealer,ldeck,hands_lookup):
 
 def endGame(scores,players):
     if players == 0:
+        with open('scores.txt','a') as f:
+            f.write(str(datetime.date.today()) + "\t" + str(scores[0])+'\t'+str(scores[1])+'\n')
         print "You win! Final score "+str(scores[0])+'-'+str(scores[1])+'.\n'
-        if scores[1] < 90:
-            print "You skunked the computer!\n"
-        elif scores[1] < 60:
+        if scores[1] < 61:
             print "You double-skunked the computer!\n"
+        elif scores[1] < 91:
+            print "You skunked the computer!\n"        
     else:
+        with open('scores.txt','a') as f:
+            f.write(str(datetime.date.today()) + "\t" + str(scores[0])+'\t'+str(scores[1])+'\n')
         print "You lose. Final score "+str(scores[0])+'-'+str(scores[1])+'.\n'
-        if scores[0] < 90:
-            print "You were skunked by the computer!\n"
-        elif scores[0] < 60:
+        if scores[0] < 61:
             print "You were double-skunked by the computer!\n"
+        elif scores[0] < 91:
+            print "You were skunked by the computer!\n"
     again = raw_input("Would you like to play again? Y/N ")
     if again == 'Y' or again == 'y':
         main()
@@ -270,7 +278,7 @@ def scoreHand(chand,cut,crib):
 # PROCEDURES FOR PEGGING
 
 # ISSUES:
-# -last player doesn't always peg points for go, specifically if the last player is the only one to play cards
+# -last player doesn't always peg points for go, specifically if the last player is the only one to play cards (maybe resolved?)
 
 # check if pegging is allowed with the hand you have
 
@@ -290,12 +298,13 @@ def pegAllowed(history,hand):
 
 # check if sum of history is 15
 
-def checkFifteens(history):
+def checkFifteens(history,p):
     sums = 0
     for h in history:
         sums+=h[1]
     if sums == 15: 
-        print "Fifteen two!\n"
+        if p:
+            print "Fifteen two!\n"
         return 2
     else: return 0  
 
@@ -313,7 +322,7 @@ def checkThirtyOne(history):
 
 # check to see if tail of history is a set
 
-def checkSets(history):
+def checkSets(history,p):
     l=len(history)
     matches = 0
     match = history[l-1][2]
@@ -321,28 +330,34 @@ def checkSets(history):
         return 0
     elif l == 2:
         if history[1][2] == history[0][2]:
-            print "For two!"
+            if p:
+                print "For two!"
             return 2
         else:
             return 0
     elif l == 3:
         if history[1][2] == history[0][2] and history[2][2] == history[0][2]:
-            print "For six!"
+            if p:
+                print "For six!"
             return 6
         elif history[1][2] == history[2][2]:
-            print "For two!"
+            if p:
+                print "For two!"
             return 2
         else:
             return 0
     elif l >= 4:
         if history[l-1][2] == history[l-2][2] and history[l-1][2] == history[l-3][2] and history [l-1][2] == history[l-4][2]:
-            print "For twelve!"
+            if p:
+                print "For twelve!"
             return 12
         elif history[l-1][2] == history[l-2][2] and history[l-1][2] == history[l-3][2]:
-            print "For six!"
+            if p:
+                print "For six!"
             return 6
         elif history[l-1][2] == history[l-2][2]:
-            print "For two!"
+            if p:
+                print "For two!"
             return 2
         else:
             return 0 
@@ -365,7 +380,7 @@ def checkSets(history):
             print "For 12!"
             return 12'''
 
-def checkRuns(history):
+def checkRuns(history,p):
     #convert to integers to check sequence
     seq = []
     l = len(history)
@@ -375,38 +390,43 @@ def checkRuns(history):
         work = seq[l-7:l]
         work.sort()
         if work[6] - work[5] == 1 and work[5] - work[4] == 1 and work[4] - work[3] == 1 and work[3] - work[2] == 1 and work[2] - work[1] == 1 and work[1] - work[0] == 1:
-            print "For a run of SEVEN!!\n"
+            if p:
+                print "For a run of SEVEN!!\n"
             return 7
     if l >= 6:
         work = seq[l-6:l]
         work.sort()
         if work[5] - work[4] == 1 and work[4] - work[3] == 1 and work[3] - work[2] == 1 and work[2] - work[1] == 1 and work[1] - work[0] == 1:
-            print "For a run of six!\n"
+            if p:
+                print "For a run of six!\n"
             return 6
     if l >= 5:
         work = seq[l-5:l]
         work.sort()
         if work[4] - work[3] == 1 and work[3] - work[2] == 1 and work[2] - work[1] == 1 and work[1] - work[0] == 1:
-            print "For a run of five!\n"
+            if p:
+                print "For a run of five!\n"
             return 5
     if l >= 4:
         work = seq[l-4:l]
         work.sort()
         if work[3] - work[2] == 1 and work[2] - work[1] == 1 and work[1] - work[0] == 1:
-            print "For a run of four!\n"
+            if p:
+                print "For a run of four!\n"
             return 4
     if l >= 3:
         work = seq[l-3:l]
         work.sort()
         if work[2] - work[1] == 1 and work[1] - work[0] == 1:
-            print "For a run of three!\n"
+            if p:
+                print "For a run of three!\n"
             return 3
     return 0    
     
 # check whole score history
 
-def checkHist(history):
-    return checkSets(history)+checkFifteens(history)+checkRuns(history)
+def checkHist(history,p):
+    return checkSets(history,p)+checkFifteens(history,p)+checkRuns(history,p)
 
 # total history values
 
@@ -424,9 +444,9 @@ def cplay(history,hand,card):
     hand.remove(card)
     print "Opponent plays "+printHand([history[-1]],False)+"."
     if hand == []:
-        return [checkHist(history),hand,history,True,True]
+        return [checkHist(history,True),hand,history,True,True]
     else:
-        return [checkHist(history),hand,history,False,True]
+        return [checkHist(history,True),hand,history,False,True]
 
 # check to see if hand has a pair in it, and if so, return the card to play as well. This is to attempt to peg for 6.
 # a problem is that if you have 3 or 4 of a kind, it will still play one of those cards, but that's not a huge problem really.
@@ -463,7 +483,7 @@ def checkSevenFive(hand):
             return [True,i]
     return [False,0]
 
-def playLead(history,hand): # procedure for leading for pegging
+def playLead(history,hand): # procedure for leading for pegging, problem with leading 5 if lowest
     if len(hand) == 1: #if there's only one card in the hand, then obviously just play that
         return cplay(history,hand,hand[0])
     else: # if there are two or more cards, computer must decide what to do
@@ -486,6 +506,47 @@ def playLead(history,hand): # procedure for leading for pegging
             else: # otherwise, lead a non-seven and non-five if possible
                 sevenorfive = checkSevenFive(hand) # is there a non-seven?
                 return cplay(history,hand,hand[sevenorfive[1]])
+
+def playCard(history,hand): # computer plays a non-lead card
+# first determine the points that would be earned by playing each card
+    plays = []
+    for card in hand:
+        if pegAllowed(history,[card]): # if cards can be played, first check to see if points are available. If so, greedily play for most points.
+            h = []
+            for i in history:
+                h.append(i)
+            h.append(card)
+            score = checkHist(h,False)
+            plays.append([card,score])
+    plays.sort(key = lambda x: x[1])
+    if plays == []: # if there are no legal plays
+        print "Opponent cannot play."
+        return [0,hand,history,True,False] # [points earned, hand remaining, history, if 'go', if played]
+    elif plays[-1][1] != 0: # do this if you can get points. Fix so that tries for 15 if there are multiple 2-point options?
+        return cplay(history,hand,plays[-1][0])
+    else: # but what if you can't get points? For now, avoid totaling 5 or 21 or 10. This can be improved.
+        shuffle(hand) #so that it doesn't always play the lowest card possible
+        for card in hand:
+            if pegAllowed(history,[card]):
+                if totalHistory(history) + card[1] == 31:
+                    return cplay(history,hand,card)
+        for card in hand:
+            if pegAllowed(history,[card]):
+                if totalHistory(history) + card[1] != 10 and totalHistory(history) + card[1] != 21 and totalHistory(history) + card[1] !=5 and card[1] != 5: #avoid 21 and 10 and 5
+                    return cplay(history,hand,card)
+        #if it's impossible to avoid 21 and 10 and 5, total to 10 first
+        for card in hand:
+            if pegAllowed(history,[card]):
+                if totalHistory(history) + card[1] == 10:
+                    return cplay(history,hand,card)
+        for card in hand:
+            if pegAllowed(history,[card]):
+                if totalHistory(history) + card[1] == 21 and card[1] != 5:
+                    return cplay(history,hand,card)
+        for card in hand: #then just play the highest card possible
+            hand.sort(reverse = True)
+            if pegAllowed(history,[card]):
+                return cplay(history,hand,card)
         
 #issues: will lead a 5 when a 5 is its lowest card
 def cpeg(history,hand): #this is the A.I. which determines the card played by the computer
@@ -494,7 +555,9 @@ def cpeg(history,hand): #this is the A.I. which determines the card played by th
         return [0,hand,history,True,False]
     elif history == []: #i.e., the computer has to lead play
         return playLead(history,hand)
-    for card in hand: # this is if not leading. For now, just maximize immediate points and avoid totaling 10 or 21. Maybe in future institute lookup table?
+    else:
+        return playCard(history,hand)
+'''    for card in hand: # this is if not leading. For now, just maximize immediate points and avoid totaling 10 or 21. Maybe in future institute lookup table?
         if pegAllowed(history,[card]):
             return cplay(history,hand,card)
 #            history.append(card)
@@ -505,7 +568,7 @@ def cpeg(history,hand): #this is the A.I. which determines the card played by th
             else:
                 return [checkHist(history),hand,history,False,True]
     print "Opponent cannot play."
-    return [0,hand,history,True,False]
+    return [0,hand,history,True,False] '''
 
 def ppeg(history,hand,ldeck):
     if hand == []:
@@ -526,9 +589,9 @@ def ppeg(history,hand,ldeck):
                     hand.remove(ldeck[play])
                     pegable = True
                     if hand == []:
-                        return [checkHist(history),hand,history,True,True]
+                        return [checkHist(history,True),hand,history,True,True]
                     else:
-                        return [checkHist(history),hand,history,False,True]
+                        return [checkHist(history,True),hand,history,False,True]
     print "You cannot play."
     return [0,hand,history,True,False]
 
@@ -619,8 +682,8 @@ def main():
         cut = hands[3]
         print "\nYour hand: " + printHand(phand,True)
 #        print "Computer's hand: " + printHand(ohand,True)
-        if dealer == 0:
-            print "Your crib: " + printHand(crib,True)
+#        if dealer == 0:
+#            print "Your crib: " + printHand(crib,True)
         print "Cut: " + printHand(cut,False)
         if cut[0][2] == 11:
             print "His nobs!"

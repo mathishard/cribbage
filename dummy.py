@@ -1,6 +1,6 @@
 from ast import literal_eval
 import os
-os.chdir("/Users/mathishard/Desktop/Riddles/1/Crib")
+#os.chdir("/Users/mathishard/Desktop/Riddles/1/Crib")
 
 f = open('crib.txt')
 

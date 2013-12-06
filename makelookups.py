@@ -4,7 +4,7 @@ import os
 from math import ceil
 from ast import literal_eval
 
-os.chdir("/Users/mathishard/Desktop/Riddles/1/Crib")
+#os.chdir("/Users/mathishard/Desktop/Riddles/1/Crib")
 
 def makeDeck():
     deck = []
